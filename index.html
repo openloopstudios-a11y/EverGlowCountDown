@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EverGlow — Track Every Moment That Matters</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #0A0A18;
+      --bg2:       #0E0E22;
+      --card:      #131328;
+      --border:    rgba(255,255,255,0.07);
+      --cyan:      #4ABDEE;
+      --cyan-glow: rgba(74,189,238,0.18);
+      --cyan-dim:  rgba(74,189,238,0.08);
+      --pink:      #E8357A;
+      --pink-glow: rgba(232,53,122,0.18);
+      --pink-dim:  rgba(232,53,122,0.08);
+      --white:     #FFFFFF;
+      --sub:       #7A85A0;
+      --sub2:      #4A5168;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      padding: 6px 14px; border-radius: 100px;
+    }
+    .tag-cyan { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(74,189,238,0.25); }
+    .tag-pink  { background: var(--pink-dim);  color: var(--pink);  border: 1px solid rgba(232,53,122,0.25); }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10,10,24,0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 20px; font-weight: 800; letter-spacing: -0.5px;
+    }
+    .nav-logo img { width: 34px; height: 34px; border-radius: 9px; object-fit: cover; }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a { font-size: 14px; color: var(--sub); transition: color .2s; }
+    .nav-links a:hover { color: var(--white); }
+    .btn-app {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: 100px;
+      font-size: 14px; font-weight: 600;
+      background: linear-gradient(135deg, var(--cyan), #3598d4);
+      color: #000; transition: opacity .2s, transform .15s;
+    }
+    .btn-app:hover { opacity: .88; transform: translateY(-1px); }
+    .hero { padding: 160px 0 100px; text-align: center; position: relative; }
+    .hero::before {
+      content: '';
+      position: absolute; top: 60px; left: 50%;
+      transform: translateX(-50%);
+      width: 900px; height: 600px;
+      background: radial-gradient(ellipse at 30% 40%, rgba(74,189,238,0.12) 0%, transparent 55%),
+                  radial-gradient(ellipse at 70% 60%, rgba(232,53,122,0.10) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--sub); margin-bottom: 28px;
+    }
+    .hero-eyebrow span { color: var(--cyan); }
+    .hero h1 { font-size: clamp(44px, 7vw, 82px); font-weight: 900; letter-spacing: -2.5px; line-height: 1.05; margin-bottom: 26px; }
+    .hero h1 em { font-style: normal; color: var(--cyan); }
+    .hero-sub { font-size: clamp(16px, 2.2vw, 21px); color: var(--sub); max-width: 560px; margin: 0 auto 48px; line-height: 1.65; }
+    .hero-cta { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 16px 34px; border-radius: 100px;
+      font-size: 16px; font-weight: 700;
+      background: linear-gradient(135deg, var(--cyan) 0%, #3598d4 100%);
+      color: #000; transition: all .2s;
+      box-shadow: 0 0 40px rgba(74,189,238,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(74,189,238,0.45); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 16px 34px; border-radius: 100px;
+      font-size: 16px; font-weight: 600; color: var(--sub);
+      border: 1px solid var(--border); transition: all .2s;
+    }
+    .btn-ghost:hover { color: var(--white); border-color: rgba(255,255,255,0.2); }
+    .hero-phones { margin-top: 80px; display: flex; justify-content: center; align-items: flex-end; gap: 24px; position: relative; }
+    .phone-wrap { position: relative; filter: drop-shadow(0 40px 80px rgba(0,0,0,0.7)); transition: transform .3s; }
+    .phone-wrap:hover { transform: translateY(-8px); }
+    .phone-wrap.center { transform: translateY(-20px); z-index: 2; }
+    .phone-wrap.center:hover { transform: translateY(-28px); }
+    .phone-wrap img { width: 200px; border-radius: 36px; display: block; }
+    .phone-wrap.large img { width: 240px; }
+    .phone-badge {
+      position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%);
+      padding: 5px 14px; border-radius: 100px;
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .phone-badge.cyan { background: var(--cyan); color: #000; }
+    .phone-badge.pink { background: var(--pink); color: #fff; }
+    .phone-glow-cyan { position: absolute; inset: -30px; background: radial-gradient(circle, rgba(74,189,238,0.2) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
+    .phone-glow-pink { position: absolute; inset: -30px; background: radial-gradient(circle, rgba(232,53,122,0.2) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
+    .two-paths { padding: 120px 0; }
+    .section-header { text-align: center; margin-bottom: 72px; }
+    .section-header h2 { font-size: clamp(34px, 4.5vw, 54px); font-weight: 900; letter-spacing: -1.5px; margin: 16px 0 18px; }
+    .section-header p { font-size: 18px; color: var(--sub); max-width: 500px; margin: 0 auto; }
+    .paths-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .path-card { border-radius: 28px; padding: 44px; border: 1px solid var(--border); position: relative; overflow: hidden; transition: transform .3s, box-shadow .3s; }
+    .path-card:hover { transform: translateY(-4px); }
+    .path-card.life { background: linear-gradient(145deg, rgba(74,189,238,0.07) 0%, var(--card) 60%); box-shadow: 0 0 60px rgba(74,189,238,0.06); }
+    .path-card.life:hover { box-shadow: 0 20px 80px rgba(74,189,238,0.12); }
+    .path-card.events { background: linear-gradient(145deg, rgba(232,53,122,0.07) 0%, var(--card) 60%); box-shadow: 0 0 60px rgba(232,53,122,0.06); }
+    .path-card.events:hover { box-shadow: 0 20px 80px rgba(232,53,122,0.12); }
+    .path-card .bg-orb { position: absolute; top: -60px; right: -60px; width: 300px; height: 300px; border-radius: 50%; pointer-events: none; }
+    .life .bg-orb { background: radial-gradient(circle, rgba(74,189,238,0.12) 0%, transparent 65%); }
+    .events .bg-orb { background: radial-gradient(circle, rgba(232,53,122,0.12) 0%, transparent 65%); }
+    .path-icon { width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 28px; }
+    .life .path-icon  { background: var(--cyan-dim); border: 1px solid rgba(74,189,238,0.2); }
+    .events .path-icon { background: var(--pink-dim);  border: 1px solid rgba(232,53,122,0.2); }
+    .path-card h3 { font-size: 32px; font-weight: 800; letter-spacing: -0.8px; margin-bottom: 12px; }
+    .life h3   { color: var(--cyan); }
+    .events h3 { color: var(--pink); }
+    .path-card .path-tagline { font-size: 18px; color: var(--white); font-weight: 600; margin-bottom: 16px; }
+    .path-card p { font-size: 15px; color: var(--sub); line-height: 1.7; margin-bottom: 32px; }
+    .path-features { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .path-features li { display: flex; align-items: center; gap: 12px; font-size: 15px; color: var(--sub); }
+    .path-features li .check { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+    .life   .check { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(74,189,238,0.3); }
+    .events .check { background: var(--pink-dim);  color: var(--pink);  border: 1px solid rgba(232,53,122,0.3); }
+    .path-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 36px; padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 700; transition: all .2s; }
+    .life   .path-cta { background: var(--cyan); color: #000; box-shadow: 0 0 20px rgba(74,189,238,0.25); }
+    .events .path-cta { background: var(--pink); color: #fff; box-shadow: 0 0 20px rgba(232,53,122,0.25); }
+    .path-cta:hover { opacity: .88; transform: translateY(-1px); }
+    .showcase { padding: 120px 0; }
+    .showcase-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 72px; gap: 48px; }
+    .showcase-header-text h2 { font-size: clamp(30px, 4vw, 48px); font-weight: 900; letter-spacing: -1.5px; margin: 14px 0 18px; }
+    .showcase-header-text p { font-size: 17px; color: var(--sub); max-width: 380px; line-height: 1.7; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px; }
+    .feature-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px; transition: transform .25s, box-shadow .25s; }
+    .feature-card:hover { transform: translateY(-3px); }
+    .feature-card.cyan-card:hover { box-shadow: 0 10px 40px rgba(74,189,238,0.1); border-color: rgba(74,189,238,0.15); }
+    .feature-card.pink-card:hover { box-shadow: 0 10px 40px rgba(232,53,122,0.1); border-color: rgba(232,53,122,0.15); }
+    .feature-card .fc-icon { font-size: 28px; margin-bottom: 16px; display: block; }
+    .feature-card h4 { font-size: 17px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
+    .feature-card p { font-size: 14px; color: var(--sub); line-height: 1.65; }
+    .feature-card.cyan-card h4 { color: var(--cyan); }
+    .feature-card.pink-card h4 { color: var(--pink); }
+    .screen-split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; padding: 80px 0; }
+    .screen-split.reverse { direction: rtl; }
+    .screen-split.reverse > * { direction: ltr; }
+    .split-text h3 { font-size: clamp(26px, 3.5vw, 40px); font-weight: 800; letter-spacing: -1px; margin: 14px 0 20px; line-height: 1.15; }
+    .split-text p { font-size: 16px; color: var(--sub); line-height: 1.75; margin-bottom: 28px; }
+    .split-feature-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .split-feature-list li { display: flex; align-items: flex-start; gap: 14px; font-size: 15px; }
+    .split-feature-list li .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
+    .cyan-dot { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+    .pink-dot { background: var(--pink); box-shadow: 0 0 8px var(--pink); }
+    .split-feature-list li span { color: var(--sub); }
+    .split-feature-list li strong { color: var(--white); display: block; font-size: 15px; margin-bottom: 2px; }
+    .split-screens { display: flex; justify-content: center; align-items: flex-end; gap: 16px; position: relative; }
+    .split-screens img { border-radius: 28px; box-shadow: 0 30px 70px rgba(0,0,0,0.6); display: block; }
+    .split-screens .s-main { width: 200px; z-index: 2; }
+    .split-screens .s-side { width: 170px; opacity: 0.75; }
+    .split-screens .s-side.left  { margin-right: -20px; margin-bottom: 10px; }
+    .split-screens .s-side.right { margin-left: -20px; margin-bottom: 10px; }
+    .glow-wrap-cyan::after { content: ''; position: absolute; inset: -40px; background: radial-gradient(circle at center, rgba(74,189,238,0.15) 0%, transparent 60%); border-radius: 50%; pointer-events: none; z-index: 0; }
+    .glow-wrap-pink::after { content: ''; position: absolute; inset: -40px; background: radial-gradient(circle at center, rgba(232,53,122,0.15) 0%, transparent 60%); border-radius: 50%; pointer-events: none; z-index: 0; }
+    .split-screens > * { position: relative; z-index: 1; }
+    .stats-bar { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 60px 0; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; text-align: center; }
+    .stat h3 { font-size: clamp(36px, 5vw, 58px); font-weight: 900; letter-spacing: -2px; margin-bottom: 8px; }
+    .stat p { font-size: 14px; color: var(--sub); letter-spacing: 0.5px; }
+    .stat.c h3 { color: var(--cyan); }
+    .stat.p h3 { color: var(--pink); }
+    .testimonials { padding: 120px 0; }
+    .quote-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .quote-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px; }
+    .quote-stars { color: #F5C542; font-size: 14px; margin-bottom: 16px; letter-spacing: 2px; }
+    .quote-card p { font-size: 15px; color: var(--sub); line-height: 1.7; margin-bottom: 20px; font-style: italic; }
+    .quote-author { display: flex; align-items: center; gap: 12px; }
+    .quote-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .quote-avatar.cyan { background: var(--cyan-dim); border: 1px solid rgba(74,189,238,0.3); }
+    .quote-avatar.pink { background: var(--pink-dim); border: 1px solid rgba(232,53,122,0.3); }
+    .quote-name { font-size: 14px; font-weight: 700; }
+    .quote-meta { font-size: 12px; color: var(--sub2); }
+    .cta-section { padding: 140px 0; text-align: center; position: relative; overflow: hidden; }
+    .cta-section::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 800px; height: 800px; border-radius: 50%; background: radial-gradient(circle, rgba(74,189,238,0.08) 0%, rgba(232,53,122,0.06) 40%, transparent 70%); pointer-events: none; }
+    .cta-section h2 { font-size: clamp(38px, 6vw, 72px); font-weight: 900; letter-spacing: -2.5px; line-height: 1.05; margin-bottom: 24px; }
+    .cta-section h2 .cyan { color: var(--cyan); }
+    .cta-section h2 .pink { color: var(--pink); }
+    .cta-section p { font-size: 19px; color: var(--sub); margin-bottom: 52px; max-width: 480px; margin-left: auto; margin-right: auto; }
+    .cta-buttons { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .btn-appstore { display: inline-flex; align-items: center; gap: 12px; background: var(--white); color: #000; padding: 16px 30px; border-radius: 16px; font-size: 15px; font-weight: 700; transition: all .2s; box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+    .btn-appstore:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(0,0,0,0.4); }
+    .btn-appstore .store-icon { font-size: 26px; }
+    .btn-appstore .store-label small { font-size: 10px; font-weight: 400; display: block; opacity: 0.6; margin-bottom: 1px; }
+    footer { border-top: 1px solid var(--border); padding: 40px 0; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .footer-logo { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+    .footer-copy { font-size: 13px; color: var(--sub2); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 13px; color: var(--sub); transition: color .2s; }
+    .footer-links a:hover { color: var(--white); }
+    .section-sep { display: flex; align-items: center; gap: 20px; margin: 20px 0 60px; }
+    .section-sep::before, .section-sep::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--border)); }
+    .section-sep::after { background: linear-gradient(90deg, var(--border), transparent); }
+    .section-sep span { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--sub2); white-space: nowrap; }
+    @media (max-width: 900px) {
+      .paths-grid { grid-template-columns: 1fr; }
+      .screen-split { grid-template-columns: 1fr; gap: 48px; }
+      .screen-split.reverse { direction: ltr; }
+      .feature-grid { grid-template-columns: 1fr 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .quote-grid { grid-template-columns: 1fr; }
+      .showcase-header { flex-direction: column; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      .hero-phones .phone-wrap.side { display: none; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .phone-wrap.large img { width: 210px; }
+    }
+    @keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    .float  { animation: floatY 5s ease-in-out infinite; }
+    .float2 { animation: floatY 5s ease-in-out infinite; animation-delay: 1.2s; }
+    .float3 { animation: floatY 5s ease-in-out infinite; animation-delay: 2.4s; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <div class="nav-logo">
+      <img src="Screenshot 2569-02-04 at 22.20.53.png" alt="EverGlow">
+      EverGlow
+    </div>
+    <div class="nav-links">
+      <a href="#life">Life</a>
+      <a href="#events">Events</a>
+      <a href="#features">Features</a>
+      <a href="https://apps.apple.com/th/app/everglow-countdown/id6759155535">Download</a>
+    </div>
+    <a href="https://apps.apple.com/th/app/everglow-countdown/id6759155535" class="btn-app">⬇ Free on App Store</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow"><span>★★★★★</span> Available on iOS</div>
+    <h1>Every day is a gift.<br><em>Make it count.</em></h1>
+    <p class="hero-sub">EverGlow gives you two powerful ways to stay present — track the milestones of your life, or count down to the moments you're living for.</p>
+    <div class="hero-cta">
+      <a href="https://apps.apple.com/th/app/everglow-countdown/id6759155535" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.09 22C7.78 22.05 6.8 20.68 5.96 19.47C4.25 17 2.94 12.45 4.7 9.39C5.57 7.87 7.13 6.91 8.82 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5M13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/></svg>
+        Download Free
+      </a>
+      <a href="#life" class="btn-ghost">Explore the App →</a>
+    </div>
+    <div class="hero-phones">
+      <div class="phone-wrap side float" style="margin-bottom:0;">
+        <div class="phone-glow-cyan"></div>
+        <img src="Simulator Screenshot - iPhone 16e - 2026-04-07 at 10.38.50.png" alt="EverGlow Life home screen">
+        <div class="phone-badge cyan">Life</div>
+      </div>
+      <div class="phone-wrap center large float2">
+        <img src="Simulator Screenshot - iPhone 16e - 2026-04-07 at 10.37.56.png" alt="EverGlow path picker">
+      </div>
+      <div class="phone-wrap side float3">
+        <div class="phone-glow-pink"></div>
+        <img src="03.png" alt="EverGlow Events screen">
+        <div class="phone-badge pink">Events</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="two-paths" id="life">
+  <div class="container">
+    <div class="section-header">
+      <div class="tag tag-cyan">Choose Your Path</div>
+      <h2>One app. Two journeys.</h2>
+      <p>Pick the mode that speaks to you — or use both together for the full picture.</p>
+    </div>
+    <div class="paths-grid">
+      <div class="path-card life">
+        <div class="bg-orb"></div>
+        <div class="path-icon">✦</div>
+        <h3>Life</h3>
+        <p class="path-tagline">Track milestones, family &amp; your journey</p>
+        <p>See your life as it truly is — a finite, precious journey. Life mode turns your age, days, and weeks into a beautiful, motivating dashboard that keeps you focused on what really matters.</p>
+        <ul class="path-features">
+          <li><span class="check">✓</span> Your life progress as a percentage</li>
+          <li><span class="check">✓</span> Days elapsed &amp; weeks remaining visualised</li>
+          <li><span class="check">✓</span> Life in Weeks grid — every week, one square</li>
+          <li><span class="check">✓</span> Track the journeys of family members</li>
+          <li><span class="check">✓</span> Daily journal — "What made today worth living?"</li>
+          <li><span class="check">✓</span> Wishlist / bucket-list with progress tracking</li>
+          <li><span class="check">✓</span> Inspiring daily quotes to stay motivated</li>
+        </ul>
+        <a href="#life-features" class="path-cta">Explore Life Mode →</a>
+      </div>
+      <div class="path-card events" id="events">
+        <div class="bg-orb"></div>
+        <div class="path-icon">🎯</div>
+        <h3>Events</h3>
+        <p class="path-tagline">Countdowns, holidays &amp; deadlines</p>
+        <p>Build anticipation for every event that matters — trips, birthdays, graduations, new years. Or count up from milestones you've already achieved and track how far you've come.</p>
+        <ul class="path-features">
+          <li><span class="check">✓</span> Unlimited custom event countdowns</li>
+          <li><span class="check">✓</span> Count Up from past milestones too</li>
+          <li><span class="check">✓</span> Beautiful custom background photos</li>
+          <li><span class="check">✓</span> Days, months, and time precision</li>
+          <li><span class="check">✓</span> All events in one beautiful dashboard</li>
+          <li><span class="check">✓</span> Progress bars for each event</li>
+          <li><span class="check">✓</span> Quick-add with name, date &amp; time</li>
+        </ul>
+        <a href="#events-features" class="path-cta">Explore Events Mode →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat c"><h3>4,435</h3><p>Weeks in an average lifetime</p></div>
+      <div class="stat p"><h3>85 yrs</h3><p>Default life expectancy tracked</p></div>
+      <div class="stat c"><h3>∞</h3><p>Events you can count down to</p></div>
+      <div class="stat p"><h3>2-in-1</h3><p>Life + Events in one app</p></div>
+    </div>
+  </div>
+</div>
+
+<section class="showcase" id="life-features">
+  <div class="container">
+    <div class="showcase-header">
+      <div class="showcase-header-text">
+        <div class="tag tag-cyan">Life Mode</div>
+        <h2>Your life, visualised.</h2>
+        <p>A profound dashboard that transforms your age and days into an inspiring, daily wake-up call.</p>
+      </div>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card cyan-card"><span class="fc-icon">⏱</span><h4>Life Progress</h4><p>See exactly how far you are through your journey — your age as a percentage, days lived, and weeks remaining displayed front and centre.</p></div>
+      <div class="feature-card cyan-card"><span class="fc-icon">📊</span><h4>Life in Weeks</h4><p>A striking grid where every square is one week of your life. Watch the elapsed weeks fill in — a powerful, honest view of your time.</p></div>
+      <div class="feature-card cyan-card"><span class="fc-icon">👨‍👩‍👧</span><h4>Family Journey</h4><p>Add the people who matter most and see their life progress alongside yours. A gentle reminder to cherish the time you have together.</p></div>
+      <div class="feature-card cyan-card"><span class="fc-icon">📓</span><h4>Daily Journal</h4><p>"What made today worth living?" A simple, daily prompt to record moments of meaning — creating a personal archive of your best days.</p></div>
+      <div class="feature-card cyan-card"><span class="fc-icon">⭐</span><h4>Wishlist</h4><p>Set life goals and track how many you've fulfilled. Your bucket list, always visible, always motivating you to take the next step.</p></div>
+      <div class="feature-card cyan-card"><span class="fc-icon">💬</span><h4>Daily Quotes</h4><p>Curated, thought-provoking quotes appear each day to inspire you to live with purpose and make the most of every single day.</p></div>
+    </div>
+    <div class="section-sep" style="margin-top:80px;"><span>Life Mode — Screens</span></div>
+    <div class="screen-split">
+      <div class="split-text">
+        <div class="tag tag-cyan" style="margin-bottom:18px;">Home Dashboard</div>
+        <h3>Your life at a glance, every single day.</h3>
+        <p>The moment you open EverGlow, you're greeted with your current age, your progress through life as a percentage, days elapsed since birth, and how many weeks you likely have left.</p>
+        <ul class="split-feature-list">
+          <li><div class="dot cyan-dot"></div><div><strong>Collective Life Progress</strong><span>A single, beautiful progress bar showing how far through your journey you are — updated every second.</span></div></li>
+          <li><div class="dot cyan-dot"></div><div><strong>Key Life Stats</strong><span>Days elapsed, weeks remaining, your life expectancy, and the estimated year you'll reach it — all in one card grid.</span></div></li>
+          <li><div class="dot cyan-dot"></div><div><strong>Family Journey Panel</strong><span>Your loved ones listed below, each with their own progress bar and years remaining.</span></div></li>
+        </ul>
+      </div>
+      <div class="split-screens glow-wrap-cyan">
+        <img class="s-side left float" src="Simulator Screenshot - iPhone 16e - 2026-04-07 at 10.56.39.png" alt="Life setup screen">
+        <img class="s-main float2" src="Simulator Screenshot - iPhone 16e - 2026-04-07 at 10.38.50.png" alt="Life home screen">
+        <img class="s-side right float3" src="Simulator Screenshot - iPhone 16e - 2026-04-07 at 10.40.48.png" alt="Life family screen">
+      </div>
+    </div>
+    <div class="screen-split reverse">
+      <div class="split-text">
+        <div class="tag tag-cyan" style="margin-bottom:18px;">Life in Weeks</div>
+        <h3>See your entire life in one view.</h3>
+        <p>Each tiny square represents one week of your life. The glowing cyan squares are the weeks you've lived — the dark ones are still ahead.</p>
+        <ul class="split-feature-list">
+          <li><div class="dot cyan-dot"></div><div><strong>Every Week, One Square</strong><span>Based on your date of birth and life expectancy, the grid fills in automatically as time passes.</span></div></li>
+          <li><div class="dot cyan-dot"></div><div><strong>Live Statistics</strong><span>Current age, weeks elapsed, weeks remaining, total weeks, days elapsed, and estimated final year — all in real time.</span></div></li>
+        </ul>
+      </div>
+      <div class="split-screens glow-wrap-cyan">
+        <img class="s-main float" src="Simulator Screenshot - iPhone 16e - 2026-04-07 at 10.41.20.png" alt="Life in Weeks screen">
+      </div>
+    </div>
+    <div class="screen-split">
+      <div class="split-text">
+        <div class="tag tag-cyan" style="margin-bottom:18px;">Journal &amp; Wishlist</div>
+        <h3>Record what matters. Chase what you love.</h3>
+        <p>The daily journal captures your best moments. The wishlist keeps your dreams front of mind.</p>
+        <ul class="split-feature-list">
+          <li><div class="dot cyan-dot"></div><div><strong>Daily Reflection Journal</strong><span>"What made today worth living?" — a simple question that builds a rich archive of meaningful moments.</span></div></li>
+          <li><div class="dot cyan-dot"></div><div><strong>Moments Accomplished</strong><span>Add life goals, tick them off, and watch your accomplishment percentage rise.</span></div></li>
+        </ul>
+      </div>
+      <div class="split-screens glow-wrap-cyan">
+        <img class="s-side left float" src="Simulator Screenshot - iPhone 16e - 2026-04-07 at 10.47.56.png" alt="Journal screen">
+        <img class="s-main float2" src="Simulator Screenshot - iPhone 16e - 2026-04-07 at 10.53.36.png" alt="Wishlist screen">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="showcase" id="events-features" style="background: linear-gradient(180deg, var(--bg) 0%, rgba(232,53,122,0.03) 50%, var(--bg) 100%);">
+  <div class="container">
+    <div class="showcase-header">
+      <div class="showcase-header-text">
+        <div class="tag tag-pink">Events Mode</div>
+        <h2>Build anticipation.<br>Celebrate every milestone.</h2>
+        <p>From your next holiday to your next birthday — keep every exciting moment alive with beautiful countdowns.</p>
+      </div>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card pink-card"><span class="fc-icon">⏳</span><h4>Countdown to Events</h4><p>Add any upcoming event — a trip, a graduation, a birthday, the new year — and watch the days, hours, minutes, and seconds tick down live.</p></div>
+      <div class="feature-card pink-card"><span class="fc-icon">📈</span><h4>Count Up from Milestones</h4><p>Already achieved something? Count up from it. Track how many days since you started your fitness streak, your relationship, or your new job.</p></div>
+      <div class="feature-card pink-card"><span class="fc-icon">🖼</span><h4>Custom Backgrounds</h4><p>Give each event a personal photo background — completely yours.</p></div>
+      <div class="feature-card pink-card"><span class="fc-icon">🔔</span><h4>Smart Notifications</h4><p>Never miss the moment. EverGlow alerts you at <strong style="color:var(--pink)">1 week, 1 day, 1 hour, and the exact moment</strong> your event arrives.</p></div>
+      <div class="feature-card pink-card"><span class="fc-icon">📤</span><h4>Share Your Countdown</h4><p>Share a beautiful countdown card with friends and family — build shared anticipation for graduations, trips, birthdays, and more.</p></div>
+      <div class="feature-card pink-card"><span class="fc-icon">📋</span><h4>Dashboard Overview</h4><p>All your events in one gorgeous scrollable list, each with a progress bar and time-left label so nothing sneaks up on you.</p></div>
+    </div>
+    <div class="section-sep" style="margin-top:80px;"><span>Events Mode — Screens</span></div>
+    <div class="screen-split">
+      <div class="split-text">
+        <div class="tag tag-pink" style="margin-bottom:18px;">Event Dashboard</div>
+        <h3>Every moment you're looking forward to, in one place.</h3>
+        <p>Your events dashboard shows all your upcoming countdowns in a gorgeous card layout with progress bars and time remaining.</p>
+        <ul class="split-feature-list">
+          <li><div class="dot pink-dot"></div><div><strong>Countdown Cards</strong><span>Graduations, trips, birthdays, and holidays each get their own vivid card with a bold time-remaining label.</span></div></li>
+          <li><div class="dot pink-dot"></div><div><strong>Count Up Cards</strong><span>Track ongoing streaks — like "Walking 5000 steps per day" — with a count-up timer that celebrates your consistency.</span></div></li>
+          <li><div class="dot pink-dot"></div><div><strong>Progress Bars</strong><span>A visual progress bar on every card shows what percentage of the time has elapsed.</span></div></li>
+        </ul>
+      </div>
+      <div class="split-screens glow-wrap-pink">
+        <img class="s-side left float" src="01.png" alt="Countdown Magic">
+        <img class="s-main float2" src="03.png" alt="Life's Never-Ending Countdown">
+      </div>
+    </div>
+    <div class="screen-split reverse">
+      <div class="split-text">
+        <div class="tag tag-pink" style="margin-bottom:18px;">Live Detail View</div>
+        <h3>Days. Hours. Minutes. Seconds. Always counting.</h3>
+        <p>Tap any event to open a full-screen detail view with a live countdown timer and your custom background image filling the screen.</p>
+        <ul class="split-feature-list">
+          <li><div class="dot pink-dot"></div><div><strong>Real-Time Precision</strong><span>The timer updates every second — never a vague "about 2 months".</span></div></li>
+          <li><div class="dot pink-dot"></div><div><strong>Immersive Background</strong><span>Your personal photo fills the entire screen. A Seoul cityscape for Korea Trip. A cap and gown for Graduation.</span></div></li>
+          <li><div class="dot pink-dot"></div><div><strong>Share Countdown</strong><span>Tap Share to send a beautiful countdown card to friends and family.</span></div></li>
+        </ul>
+      </div>
+      <div class="split-screens glow-wrap-pink">
+        <img class="s-side left float" src="05.png" alt="Customize Background">
+        <img class="s-main float2" src="04.png" alt="Timely Memories">
+        <img class="s-side right float3" src="06.png" alt="Notifications">
+      </div>
+    </div>
+    <div class="screen-split">
+      <div class="split-text">
+        <div class="tag tag-pink" style="margin-bottom:18px;">Smart Notifications</div>
+        <h3>Never miss the moment you've been waiting for.</h3>
+        <p>EverGlow sends you perfectly timed reminders so you're always ready.</p>
+        <ul class="split-feature-list">
+          <li><div class="dot pink-dot"></div><div><strong>4-Stage Alerts</strong><span>Notifications fire at <strong style="color:var(--pink)">1 week, 1 day, 1 hour</strong>, and the <strong style="color:var(--pink)">exact moment</strong> — so you're never caught off guard.</span></div></li>
+          <li><div class="dot pink-dot"></div><div><strong>Set Once, Always Ready</strong><span>Add your event once and EverGlow handles the reminders automatically.</span></div></li>
+          <li><div class="dot pink-dot"></div><div><strong>Create in Seconds</strong><span>Name it, pick countdown or count up, set the date and time, add a photo — live instantly.</span></div></li>
+        </ul>
+      </div>
+      <div class="split-screens glow-wrap-pink">
+        <img class="s-side left float" src="02.png" alt="Celebrate Every Moment">
+        <img class="s-main float2" src="06.png" alt="Notifications">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding: 100px 0; background: linear-gradient(180deg, var(--bg) 0%, rgba(232,53,122,0.04) 50%, var(--bg) 100%);">
+  <div class="container">
+    <div class="section-header">
+      <div class="tag tag-pink">Pricing</div>
+      <h2>Free to start. Unlock everything.</h2>
+      <p>Download EverGlow free and try it. Upgrade for unlimited events, smart notifications, and sharing.</p>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:700px; margin:0 auto;">
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:24px; padding:36px; text-align:center;">
+        <div style="font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--sub); margin-bottom:20px;">Monthly</div>
+        <div style="font-size:52px; font-weight:900; letter-spacing:-2px; color:var(--white);">$2.99</div>
+        <div style="font-size:14px; color:var(--sub); margin-bottom:28px;">per month</div>
+        <ul style="list-style:none; text-align:left; display:flex; flex-direction:column; gap:11px; margin-bottom:32px;">
+          <li style="font-size:14px; color:var(--sub); display:flex; gap:10px; align-items:center;"><span style="color:var(--pink)">✓</span> Unlimited countdown events</li>
+          <li style="font-size:14px; color:var(--sub); display:flex; gap:10px; align-items:center;"><span style="color:var(--pink)">✓</span> Unlimited count-up events</li>
+          <li style="font-size:14px; color:var(--sub); display:flex; gap:10px; align-items:center;"><span style="color:var(--pink)">✓</span> Custom background images</li>
+          <li style="font-size:14px; color:var(--sub); display:flex; gap:10px; align-items:center;"><span style="color:var(--pink)">✓</span> Advanced notifications</li>
+          <li style="font-size:14px; color:var(--sub); display:flex; gap:10px; align-items:center;"><span style="color:var(--pink)">✓</span> Share beautiful event cards</li>
+        </ul>
+        <a href="https://apps.apple.com/th/app/everglow-countdown/id6759155535" style="display:block; padding:14px; border-radius:12px; background:var(--card); border:1px solid var(--border); font-size:15px; font-weight:700; color:var(--white);">Get Started</a>
+      </div>
+      <div style="background:linear-gradient(145deg, rgba(232,53,122,0.12), var(--card)); border:1.5px solid rgba(232,53,122,0.35); border-radius:24px; padding:36px; text-align:center; position:relative; box-shadow:0 0 50px rgba(232,53,122,0.12);">
+        <div style="position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:var(--pink); color:#fff; font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; padding:5px 16px; border-radius:100px; white-space:nowrap;">Best Value — Save 58%</div>
+        <div style="font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--pink); margin-bottom:20px;">Yearly</div>
+        <div style="font-size:52px; font-weight:900; letter-spacing:-2px; color:var(--white);">$14.99</div>
+        <div style="font-size:14px; color:var(--sub); margin-bottom:28px;">per year · $1.25/mo</div>
+        <ul style="list-style:none; text-align:left; display:flex; flex-direction:column; gap:11px; margin-bottom:32px;">
+          <li style="font-size:14px; color:var(--sub); display:flex; gap:10px; align-items:center;"><span style="color:var(--pink)">✓</span> Unlimited countdown events</li>
+          <li style="font-size:14px; color:var(--sub); display:flex; gap:10px; align-items:center;"><span style="color:var(--pink)">✓</span> Unlimited count-up events</li>
+          <li style="font-size:14px; color:var(--sub); display:flex; gap:10px; align-items:center;"><span style="color:var(--pink)">✓</span> Custom background images</li>
+          <li style="font-size:14px; color:var(--sub); display:flex; gap:10px; align-items:center;"><span style="color:var(--pink)">✓</span> Advanced notifications</li>
+          <li style="font-size:14px; color:var(--sub); display:flex; gap:10px; align-items:center;"><span style="color:var(--pink)">✓</span> Share beautiful event cards</li>
+        </ul>
+        <a href="https://apps.apple.com/th/app/everglow-countdown/id6759155535" style="display:block; padding:14px; border-radius:12px; background:var(--pink); font-size:15px; font-weight:700; color:#fff; box-shadow:0 0 24px rgba(232,53,122,0.35);">Get Best Value</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="testimonials">
+  <div class="container">
+    <div class="section-header">
+      <div class="tag tag-cyan">What People Say</div>
+      <h2>Changed the way I see my days.</h2>
+    </div>
+    <div class="quote-grid">
+      <div class="quote-card">
+        <div class="quote-stars">★★★★★</div>
+        <p>"The Life in Weeks grid is genuinely moving. Seeing my weeks as tiny squares made me put my phone down and call my mum. That's rare for an app."</p>
+        <div class="quote-author"><div class="quote-avatar cyan">😊</div><div><div class="quote-name">Sarah K.</div><div class="quote-meta">Life Mode user</div></div></div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-stars">★★★★★</div>
+        <p>"I use the Events mode every day. My Korea trip countdown is the first thing I check every morning — it keeps me hyped for months."</p>
+        <div class="quote-author"><div class="quote-avatar pink">✈️</div><div><div class="quote-name">James T.</div><div class="quote-meta">Events Mode user</div></div></div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-stars">★★★★★</div>
+        <p>"The journal prompt — 'What made today worth living?' — has become a ritual. Three months of entries and I finally feel like I'm paying attention to my life."</p>
+        <div class="quote-author"><div class="quote-avatar cyan">📓</div><div><div class="quote-name">Priya M.</div><div class="quote-meta">Life Mode + Journal user</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section" id="download">
+  <div class="container">
+    <div class="tag tag-cyan" style="display:inline-flex; margin-bottom:28px;">Free on iOS</div>
+    <h2>Stop counting days.<br>Start making <span class="cyan">days</span> <span class="pink">count</span>.</h2>
+    <p>Download EverGlow free and choose your path — a deep, reflective life journey, or a fun, energetic events tracker. Or both.</p>
+    <div class="cta-buttons">
+      <a href="https://apps.apple.com/th/app/everglow-countdown/id6759155535" class="btn-appstore">
+        <span class="store-icon">🍎</span>
+        <div><small>Download on the</small>App Store</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container footer-inner">
+    <div class="footer-logo">
+      <img src="Screenshot 2569-02-04 at 22.20.53.png" alt="EverGlow" style="width:28px;height:28px;border-radius:7px;object-fit:cover;">
+      EverGlow
+    </div>
+    <div class="footer-copy">© 2026 EverGlow. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="https://openloopstudios-a11y.github.io/EverGlow-privacy/">Privacy Policy</a>
+      <a href="https://openloopstudios-a11y.github.io/EverGlow-privacy/terms">Terms of Use (EULA)</a>
+      <a href="mailto:openloopstudios@gmail.com">Support</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const els = document.querySelectorAll('.feature-card, .path-card, .quote-card, .screen-split, .stat');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = e.target.style.transform.replace('translateY(24px)', 'translateY(0)');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  els.forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = (el.style.transform || '') + ' translateY(24px)';
+    el.style.transition = 'opacity 0.55s ease, transform 0.55s ease';
+    io.observe(el);
+  });
+</script>
+</body>
+</html>
